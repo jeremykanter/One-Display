@@ -1,0 +1,578 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		BD54AF412FE5DF4400DB65C5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BD54AF292FE5DF4200DB65C5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BD54AF302FE5DF4200DB65C5;
+			remoteInfo = "One Display";
+		};
+		BD54AF4B2FE5DF4400DB65C5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BD54AF292FE5DF4200DB65C5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BD54AF302FE5DF4200DB65C5;
+			remoteInfo = "One Display";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		BD54AF312FE5DF4200DB65C5 /* One Display.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "One Display.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD54AF402FE5DF4400DB65C5 /* One DisplayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "One DisplayTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD54AF4A2FE5DF4400DB65C5 /* One DisplayUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "One DisplayUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		BD54AF332FE5DF4200DB65C5 /* One Display */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "One Display";
+			sourceTree = "<group>";
+		};
+		BD54AF432FE5DF4400DB65C5 /* One DisplayTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "One DisplayTests";
+			sourceTree = "<group>";
+		};
+		BD54AF4D2FE5DF4400DB65C5 /* One DisplayUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "One DisplayUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BD54AF2E2FE5DF4200DB65C5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD54AF3D2FE5DF4400DB65C5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD54AF472FE5DF4400DB65C5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BD54AF282FE5DF4200DB65C5 = {
+			isa = PBXGroup;
+			children = (
+				BD54AF332FE5DF4200DB65C5 /* One Display */,
+				BD54AF432FE5DF4400DB65C5 /* One DisplayTests */,
+				BD54AF4D2FE5DF4400DB65C5 /* One DisplayUITests */,
+				BD54AF322FE5DF4200DB65C5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BD54AF322FE5DF4200DB65C5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BD54AF312FE5DF4200DB65C5 /* One Display.app */,
+				BD54AF402FE5DF4400DB65C5 /* One DisplayTests.xctest */,
+				BD54AF4A2FE5DF4400DB65C5 /* One DisplayUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BD54AF302FE5DF4200DB65C5 /* One Display */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BD54AF542FE5DF4400DB65C5 /* Build configuration list for PBXNativeTarget "One Display" */;
+			buildPhases = (
+				BD54AF2D2FE5DF4200DB65C5 /* Sources */,
+				BD54AF2E2FE5DF4200DB65C5 /* Frameworks */,
+				BD54AF2F2FE5DF4200DB65C5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BD54AF332FE5DF4200DB65C5 /* One Display */,
+			);
+			name = "One Display";
+			packageProductDependencies = (
+			);
+			productName = "One Display";
+			productReference = BD54AF312FE5DF4200DB65C5 /* One Display.app */;
+			productType = "com.apple.product-type.application";
+		};
+		BD54AF3F2FE5DF4400DB65C5 /* One DisplayTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BD54AF572FE5DF4400DB65C5 /* Build configuration list for PBXNativeTarget "One DisplayTests" */;
+			buildPhases = (
+				BD54AF3C2FE5DF4400DB65C5 /* Sources */,
+				BD54AF3D2FE5DF4400DB65C5 /* Frameworks */,
+				BD54AF3E2FE5DF4400DB65C5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BD54AF422FE5DF4400DB65C5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BD54AF432FE5DF4400DB65C5 /* One DisplayTests */,
+			);
+			name = "One DisplayTests";
+			packageProductDependencies = (
+			);
+			productName = "One DisplayTests";
+			productReference = BD54AF402FE5DF4400DB65C5 /* One DisplayTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		BD54AF492FE5DF4400DB65C5 /* One DisplayUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BD54AF5A2FE5DF4400DB65C5 /* Build configuration list for PBXNativeTarget "One DisplayUITests" */;
+			buildPhases = (
+				BD54AF462FE5DF4400DB65C5 /* Sources */,
+				BD54AF472FE5DF4400DB65C5 /* Frameworks */,
+				BD54AF482FE5DF4400DB65C5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BD54AF4C2FE5DF4400DB65C5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BD54AF4D2FE5DF4400DB65C5 /* One DisplayUITests */,
+			);
+			name = "One DisplayUITests";
+			packageProductDependencies = (
+			);
+			productName = "One DisplayUITests";
+			productReference = BD54AF4A2FE5DF4400DB65C5 /* One DisplayUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BD54AF292FE5DF4200DB65C5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					BD54AF302FE5DF4200DB65C5 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					BD54AF3F2FE5DF4400DB65C5 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = BD54AF302FE5DF4200DB65C5;
+					};
+					BD54AF492FE5DF4400DB65C5 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = BD54AF302FE5DF4200DB65C5;
+					};
+				};
+			};
+			buildConfigurationList = BD54AF2C2FE5DF4200DB65C5 /* Build configuration list for PBXProject "One Display" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BD54AF282FE5DF4200DB65C5;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = BD54AF322FE5DF4200DB65C5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BD54AF302FE5DF4200DB65C5 /* One Display */,
+				BD54AF3F2FE5DF4400DB65C5 /* One DisplayTests */,
+				BD54AF492FE5DF4400DB65C5 /* One DisplayUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BD54AF2F2FE5DF4200DB65C5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD54AF3E2FE5DF4400DB65C5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD54AF482FE5DF4400DB65C5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BD54AF2D2FE5DF4200DB65C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD54AF3C2FE5DF4400DB65C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BD54AF462FE5DF4400DB65C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BD54AF422FE5DF4400DB65C5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BD54AF302FE5DF4200DB65C5 /* One Display */;
+			targetProxy = BD54AF412FE5DF4400DB65C5 /* PBXContainerItemProxy */;
+		};
+		BD54AF4C2FE5DF4400DB65C5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BD54AF302FE5DF4200DB65C5 /* One Display */;
+			targetProxy = BD54AF4B2FE5DF4400DB65C5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		BD54AF522FE5DF4400DB65C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = C8KLPAYCQ7;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BD54AF532FE5DF4400DB65C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = C8KLPAYCQ7;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		BD54AF552FE5DF4400DB65C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8KLPAYCQ7;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-Display";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		BD54AF562FE5DF4400DB65C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8KLPAYCQ7;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-Display";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		BD54AF582FE5DF4400DB65C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8KLPAYCQ7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-DisplayTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/One Display.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/One Display";
+			};
+			name = Debug;
+		};
+		BD54AF592FE5DF4400DB65C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8KLPAYCQ7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-DisplayTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/One Display.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/One Display";
+			};
+			name = Release;
+		};
+		BD54AF5B2FE5DF4400DB65C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8KLPAYCQ7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-DisplayUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "One Display";
+			};
+			name = Debug;
+		};
+		BD54AF5C2FE5DF4400DB65C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = C8KLPAYCQ7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-DisplayUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "One Display";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BD54AF2C2FE5DF4200DB65C5 /* Build configuration list for PBXProject "One Display" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD54AF522FE5DF4400DB65C5 /* Debug */,
+				BD54AF532FE5DF4400DB65C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BD54AF542FE5DF4400DB65C5 /* Build configuration list for PBXNativeTarget "One Display" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD54AF552FE5DF4400DB65C5 /* Debug */,
+				BD54AF562FE5DF4400DB65C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BD54AF572FE5DF4400DB65C5 /* Build configuration list for PBXNativeTarget "One DisplayTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD54AF582FE5DF4400DB65C5 /* Debug */,
+				BD54AF592FE5DF4400DB65C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BD54AF5A2FE5DF4400DB65C5 /* Build configuration list for PBXNativeTarget "One DisplayUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BD54AF5B2FE5DF4400DB65C5 /* Debug */,
+				BD54AF5C2FE5DF4400DB65C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BD54AF292FE5DF4200DB65C5 /* Project object */;
+}
