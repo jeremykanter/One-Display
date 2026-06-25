@@ -2,18 +2,35 @@
 //  One_DisplayTests.swift
 //  One DisplayTests
 //
-//  Created by Jeremy Kanter on 6/19/26.
-//
 
 import Testing
 @testable import One_Display
 
-struct One_DisplayTests {
+struct DesiredBuiltInStateTests {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-        // Swift Testing Documentation
-        // https://developer.apple.com/documentation/testing
+    @Test func externalConnectedWithBuiltInOnDisablesBuiltIn() {
+        #expect(desiredBuiltInState(externalCount: 1, builtInActive: true) == .disableBuiltIn)
     }
 
+    @Test func externalConnectedWithBuiltInAlreadyOffDoesNothing() {
+        #expect(desiredBuiltInState(externalCount: 1, builtInActive: false) == .noChange)
+    }
+
+    @Test func noExternalWithBuiltInOffEnablesBuiltIn() {
+        #expect(desiredBuiltInState(externalCount: 0, builtInActive: false) == .enableBuiltIn)
+    }
+
+    @Test func noExternalWithBuiltInOnDoesNothing() {
+        #expect(desiredBuiltInState(externalCount: 0, builtInActive: true) == .noChange)
+    }
+
+    @Test func multipleExternalsStillDisableBuiltIn() {
+        #expect(desiredBuiltInState(externalCount: 2, builtInActive: true) == .disableBuiltIn)
+    }
+
+    /// Safety: with no displays at all we must never ask to disable the built-in.
+    @Test func zeroDisplaysNeverDisablesBuiltIn() {
+        let action = desiredBuiltInState(externalCount: 0, builtInActive: false)
+        #expect(action != .disableBuiltIn)
+    }
 }

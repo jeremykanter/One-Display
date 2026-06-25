@@ -2,58 +2,68 @@
 //  ContentView.swift
 //  One Display
 //
-//  Created by Jeremy Kanter on 6/19/26.
-//
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @StateObject private var controller = DisplayController.shared
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        VStack(alignment: .leading, spacing: 16) {
+            displayList
+            Divider()
+            controls
+        }
+        .padding(20)
+        .frame(minWidth: 320, minHeight: 320)
+    }
+
+    private var header: some View {
+        HStack(spacing: 10) {
+            Image(systemName: controller.builtInDisabled
+                  ? "laptopcomputer.slash" : "laptopcomputer")
+                .font(.title)
+                .foregroundStyle(controller.builtInDisabled ? .orange : .secondary)
+            VStack(alignment: .leading) {
+                Text("One Display").font(.headline)
+                Text(controller.builtInDisabled
+                     ? "Built-in display is OFF"
+                     : "Built-in display is on")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-            .toolbar {
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
         }
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+    private var displayList: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Displays").font(.headline)
+            if controller.displays.isEmpty {
+                Text("No displays reported.").foregroundStyle(.secondary)
+            }
+            ForEach(controller.displays) { display in
+                HStack {
+                    Image(systemName: display.isBuiltIn
+                          ? "laptopcomputer" : "display")
+                    Text(display.name)
+                    Spacer()
+                    Text(display.isActive ? "active" : "off")
+                        .font(.caption)
+                        .foregroundStyle(display.isActive ? .green : .secondary)
+                }
             }
         }
     }
+
+    private var controls: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Toggle("Sleep when the lid is closed",
+                   isOn: $controller.sleepOnLidClose)
+        }
+    }
+
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
