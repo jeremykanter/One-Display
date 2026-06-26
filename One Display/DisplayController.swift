@@ -10,6 +10,7 @@
 import AppKit
 import CoreGraphics
 import Combine
+import KeyboardShortcuts
 
 /// The action the policy wants us to take on the built-in display.
 enum BuiltInAction: Equatable {
@@ -99,7 +100,6 @@ final class DisplayController: ObservableObject {
     /// fooled by the placeholder display macOS spins up to avoid zero displays.
     private var disabledBuiltInID: CGDirectDisplayID?
     private let lidMonitor = LidMonitor()
-    private let hotKey = HotKeyManager()
 
     /// Activity log is mirrored to this file for easy sharing while testing.
     private let logFileURL = FileManager.default.homeDirectoryForCurrentUser
@@ -149,11 +149,12 @@ final class DisplayController: ObservableObject {
         }
         lidMonitor.start()
 
-        // Global ⌃⌘B toggles the built-in display (manual override for testing).
-        hotKey.onTrigger = { [weak self] in
+        // Global shortcut (default ⌃⌘B) toggles the built-in display. The combo
+        // is user-customizable and can be turned off entirely from Settings.
+        KeyboardShortcuts.onKeyUp(for: .toggleBuiltInDisplay) { [weak self] in
             self?.toggleBuiltIn()
         }
-        hotKey.register()
+        applyShortcutEnabledState()
 
         startLogFile()
         appendLog("Started — watching for display changes.")
@@ -161,20 +162,39 @@ final class DisplayController: ObservableObject {
         apply()
     }
 
-    /// Toggle the built-in panel by hand (⌃⌘B). Pauses automation so the chosen
-    /// state sticks instead of being immediately re-applied by policy.
+    /// Toggle the built-in panel by hand via the keyboard shortcut. Pauses
+    /// automation so the chosen state sticks instead of being immediately
+    /// re-applied by policy.
     func toggleBuiltIn() {
-        automationEnabled = false
+        //automationEnabled = false
         if isBuiltInActive() {
             guard !externalDisplayIDs().isEmpty, let id = builtInDisplayID() else {
-                appendLog("Hotkey ⌃⌘B: refused to disable built-in (no external display).")
+                appendLog("Shortcut: refused to disable built-in (no external display).")
                 return
             }
-            appendLog("Hotkey ⌃⌘B: built-in OFF (automation paused).")
+            appendLog("Shortcut: built-in OFF (automation paused).")
             performDisable(id)
         } else {
-            appendLog("Hotkey ⌃⌘B: built-in ON (automation paused).")
+            appendLog("Shortcut: built-in ON (automation paused).")
             performEnable()
+        }
+    }
+
+    /// Persisted on/off state of the toggle-display shortcut. Defaults on so
+    /// existing users keep the previously hardcoded ⌃⌘B behavior.
+    private var shortcutEnabledSetting: Bool {
+        UserDefaults.standard.object(forKey: "toggleShortcutEnabled") == nil
+            ? true
+            : UserDefaults.standard.bool(forKey: "toggleShortcutEnabled")
+    }
+
+    /// Enable or disable the global shortcut to match the persisted setting.
+    /// Called on launch and whenever the Settings checkbox changes.
+    func applyShortcutEnabledState() {
+        if shortcutEnabledSetting {
+            KeyboardShortcuts.enable(.toggleBuiltInDisplay)
+        } else {
+            KeyboardShortcuts.disable(.toggleBuiltInDisplay)
         }
     }
 

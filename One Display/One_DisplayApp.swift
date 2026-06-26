@@ -16,10 +16,10 @@ struct One_DisplayApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .frame(minWidth: 320, idealWidth: 320, maxWidth: .infinity, minHeight: 320, idealHeight: 320, maxHeight: .infinity)
+                .frame(minWidth: 400, idealWidth: 400, maxWidth: .infinity, minHeight: 320, idealHeight: 320, maxHeight: .infinity)
         }
         .windowStyle(.hiddenTitleBar)
-        .defaultSize(width: 320, height: 320)
+        .defaultSize(width: 400, height: 320)
         .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(after: .help) {

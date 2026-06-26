@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AAAA0001AAAA0001AAAA0001 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = AAAA0002AAAA0002AAAA0002 /* KeyboardShortcuts */; };
+		BD6DC18A2FEE1F6700863B81 /* One Display 1.0.zip in Resources */ = {isa = PBXBuildFile; fileRef = BD6DC1892FEE1F6700863B81 /* One Display 1.0.zip */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		BD54AF412FE5DF4400DB65C5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +32,7 @@
 		BD54AF312FE5DF4200DB65C5 /* One Display.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "One Display.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD54AF402FE5DF4400DB65C5 /* One DisplayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "One DisplayTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD54AF4A2FE5DF4400DB65C5 /* One DisplayUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "One DisplayUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD6DC1892FEE1F6700863B81 /* One Display 1.0.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "One Display 1.0.zip"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AAAA0001AAAA0001AAAA0001 /* KeyboardShortcuts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,6 +86,7 @@
 				BD54AF432FE5DF4400DB65C5 /* One DisplayTests */,
 				BD54AF4D2FE5DF4400DB65C5 /* One DisplayUITests */,
 				BD54AF322FE5DF4200DB65C5 /* Products */,
+				BD6DC1892FEE1F6700863B81 /* One Display 1.0.zip */,
 			);
 			sourceTree = "<group>";
 		};
@@ -112,6 +120,7 @@
 			);
 			name = "One Display";
 			packageProductDependencies = (
+				AAAA0002AAAA0002AAAA0002 /* KeyboardShortcuts */,
 			);
 			productName = "One Display";
 			productReference = BD54AF312FE5DF4200DB65C5 /* One Display.app */;
@@ -195,6 +204,9 @@
 			);
 			mainGroup = BD54AF282FE5DF4200DB65C5;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AAAA0003AAAA0003AAAA0003 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BD54AF322FE5DF4200DB65C5 /* Products */;
 			projectDirPath = "";
@@ -212,6 +224,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BD6DC18A2FEE1F6700863B81 /* One Display 1.0.zip in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -581,6 +594,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AAAA0003AAAA0003AAAA0003 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AAAA0002AAAA0002AAAA0002 /* KeyboardShortcuts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAAA0003AAAA0003AAAA0003 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
+			productName = KeyboardShortcuts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = BD54AF292FE5DF4200DB65C5 /* Project object */;
 }
