@@ -16,8 +16,11 @@ struct One_DisplayApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .frame(minWidth: 320, idealWidth: 320, maxWidth: .infinity, minHeight: 320, idealHeight: 320, maxHeight: .infinity)
         }
-        .windowResizability(.contentSize)
+        .windowStyle(.hiddenTitleBar)
+        .defaultSize(width: 320, height: 320)
+        .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(after: .help) {
                 Toggle("Save Activity Logs", isOn: $saveActivityLogs)
@@ -34,6 +37,7 @@ struct One_DisplayApp: App {
 /// window closes so it keeps watching displays in the background with no Dock
 /// presence. Relaunching from Spotlight/Finder reopens the window.
 final class AppDelegate: NSObject, NSApplicationDelegate {
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Flip to background (accessory) once the user closes the settings
         // window, so the app runs headless without a Dock icon.
@@ -43,11 +47,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             name: NSWindow.willCloseNotification,
             object: nil)
 
+        // Detect a login-item (background) launch and start headless. A manual
+        // Finder/Spotlight launch activates the app almost immediately; a login
+        // launch never does and leaves its window unshown in the background. If
+        // we still aren't active a moment later, we were launched at login —
+        // drop the Dock icon and close the unshown window.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            guard let self, !NSApp.isActive else { return }
+            NSApp.setActivationPolicy(.accessory)
+            self.closeAllWindows()
+        }
+
         // Never manipulate displays while running under XCTest — the unit-test
         // target hosts this app, and UI tests launch it, so acting here would
         // disable the developer's screen during a test run.
         guard !Self.isRunningUnderTests else { return }
         DisplayController.shared.start()
+    }
+
+    private func closeAllWindows() {
+        for window in NSApp.windows where !(window is NSPanel) {
+            window.close()
+        }
     }
 
     /// Keep the app alive (headless) when the settings window is closed — the
