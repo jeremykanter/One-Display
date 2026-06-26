@@ -17,8 +17,8 @@ struct ContentView: View {
                 HStack(spacing: 8) {
                     Circle()
                         .frame(width: 8, height: 8)
-                        .foregroundStyle(controller.automationEnabled ? .green : .red)
-                    Text(controller.automationEnabled ? "Active" :   "Inactive")
+                        .foregroundStyle(status.color)
+                    Text(status.label)
                         .font(.subheadline.bold())
                 }
                 .padding(.vertical, 4)
@@ -55,6 +55,19 @@ struct ContentView: View {
         }
         .padding(32)
         .onAppear { loginItem.refresh() }
+    }
+
+    /// The status pill's color and label. Blue "Paused" while a temporary
+    /// override is held; red "Inactive" when automation is off entirely;
+    /// green "Active" during normal automation.
+    private var status: (color: Color, label: String) {
+        if !controller.automationEnabled {
+            return (.red, "Inactive")
+        } else if controller.manualOverrideActive {
+            return (.blue, "Paused")
+        } else {
+            return (.green, "Active")
+        }
     }
 
     private var header: some View {

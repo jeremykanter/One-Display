@@ -76,6 +76,11 @@ final class DisplayController: ObservableObject {
     /// When off, screen changes are observed but no automatic action is taken.
     /// Useful for testing the manual override buttons.
     @Published var automationEnabled: Bool = true
+    /// True while a shortcut toggle is holding the built-in against what automation
+    /// would do. Suppresses the auto-policy until the next external connect/disconnect,
+    /// then clears so automation resumes. Distinct from `automationEnabled`, which is
+    /// the global on/off master switch.
+    @Published private(set) var manualOverrideActive = false
     /// When on, closing the lid while an external is connected sleeps the Mac
     /// instead of entering macOS clamshell mode.
     @Published var sleepOnLidClose: Bool = true
@@ -162,22 +167,35 @@ final class DisplayController: ObservableObject {
         apply()
     }
 
-    /// Toggle the built-in panel by hand via the keyboard shortcut. Pauses
-    /// automation so the chosen state sticks instead of being immediately
-    /// re-applied by policy.
+    /// Toggle the built-in panel by hand via the keyboard shortcut. When the
+    /// chosen state differs from what automation would do, it's held as a
+    /// temporary override (automation stays on but takes no action until the
+    /// next external connect/disconnect). When the chosen state already matches
+    /// policy — e.g. turning the built-in back off while an external is present —
+    /// no override is held and automation is effectively back in control.
     func toggleBuiltIn() {
-        //automationEnabled = false
+        let externalCount = externalDisplayIDs().count
+        let intendedBuiltInActive: Bool
         if isBuiltInActive() {
-            guard !externalDisplayIDs().isEmpty, let id = builtInDisplayID() else {
+            guard externalCount > 0, let id = builtInDisplayID() else {
                 appendLog("Shortcut: refused to disable built-in (no external display).")
                 return
             }
-            appendLog("Shortcut: built-in OFF (automation paused).")
+            appendLog("Shortcut: built-in OFF.")
             performDisable(id)
+            intendedBuiltInActive = false
         } else {
-            appendLog("Shortcut: built-in ON (automation paused).")
+            appendLog("Shortcut: built-in ON.")
             performEnable()
+            intendedBuiltInActive = true
         }
+
+        let action = desiredBuiltInState(externalCount: externalCount,
+                                         builtInActive: intendedBuiltInActive)
+        manualOverrideActive = action != .noChange
+        appendLog(manualOverrideActive
+                  ? "Override held until next display change."
+                  : "Built-in matches automation — override cleared.")
     }
 
     /// Persisted on/off state of the toggle-display shortcut. Defaults on so
@@ -216,6 +234,16 @@ final class DisplayController: ObservableObject {
     func handleReconfiguration(display: CGDirectDisplayID, flags: CGDisplayChangeSummaryFlags) {
         appendLog("Reconfig: display \(display) [\(describe(flags))]")
 
+        // A real external connect/disconnect ends any temporary override and lets
+        // automation take over again. Built-in enable/disable events (our own toggle
+        // actions) are ignored — they are not external hotplugs.
+        if manualOverrideActive,
+           flags.contains(.addFlag) || flags.contains(.removeFlag),
+           CGDisplayIsBuiltin(display) == 0 {
+            appendLog("External hotplug — override cleared, automation resumes.")
+            manualOverrideActive = false
+        }
+
         // If a display other than the one we disabled is removed while we hold
         // the built-in disabled, the external is gone — restore the built-in
         // immediately. We trigger on the removal event (not the display count)
@@ -252,6 +280,10 @@ final class DisplayController: ObservableObject {
         guard !isApplying else { return }
         guard automationEnabled else {
             appendLog("Change detected (automation off — no action).")
+            return
+        }
+        guard !manualOverrideActive else {
+            appendLog("Change detected (manual override held — no action).")
             return
         }
 
