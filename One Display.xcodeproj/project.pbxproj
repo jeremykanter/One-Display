@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		AAAA0001AAAA0001AAAA0001 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = AAAA0002AAAA0002AAAA0002 /* KeyboardShortcuts */; };
-		BDEB43C72FFAA52D00F65895 /* One Display 1.0.1.zip in Resources */ = {isa = PBXBuildFile; fileRef = BDEB43C62FFAA52D00F65895 /* One Display 1.0.1.zip */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,7 +31,6 @@
 		BD54AF312FE5DF4200DB65C5 /* One Display.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "One Display.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD54AF402FE5DF4400DB65C5 /* One DisplayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "One DisplayTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD54AF4A2FE5DF4400DB65C5 /* One DisplayUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "One DisplayUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		BDEB43C62FFAA52D00F65895 /* One Display 1.0.1.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "One Display 1.0.1.zip"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -86,7 +84,6 @@
 				BD54AF432FE5DF4400DB65C5 /* One DisplayTests */,
 				BD54AF4D2FE5DF4400DB65C5 /* One DisplayUITests */,
 				BD54AF322FE5DF4200DB65C5 /* Products */,
-				BDEB43C62FFAA52D00F65895 /* One Display 1.0.1.zip */,
 			);
 			sourceTree = "<group>";
 		};
@@ -224,7 +221,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BDEB43C72FFAA52D00F65895 /* One Display 1.0.1.zip in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
