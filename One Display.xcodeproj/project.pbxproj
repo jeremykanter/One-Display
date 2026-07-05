@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		AAAA0001AAAA0001AAAA0001 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = AAAA0002AAAA0002AAAA0002 /* KeyboardShortcuts */; };
-		BD6DC18A2FEE1F6700863B81 /* One Display 1.0.zip in Resources */ = {isa = PBXBuildFile; fileRef = BD6DC1892FEE1F6700863B81 /* One Display 1.0.zip */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,7 +31,6 @@
 		BD54AF312FE5DF4200DB65C5 /* One Display.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "One Display.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD54AF402FE5DF4400DB65C5 /* One DisplayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "One DisplayTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD54AF4A2FE5DF4400DB65C5 /* One DisplayUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "One DisplayUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		BD6DC1892FEE1F6700863B81 /* One Display 1.0.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "One Display 1.0.zip"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -86,7 +84,6 @@
 				BD54AF432FE5DF4400DB65C5 /* One DisplayTests */,
 				BD54AF4D2FE5DF4400DB65C5 /* One DisplayUITests */,
 				BD54AF322FE5DF4200DB65C5 /* Products */,
-				BD6DC1892FEE1F6700863B81 /* One Display 1.0.zip */,
 			);
 			sourceTree = "<group>";
 		};
@@ -224,7 +221,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BD6DC18A2FEE1F6700863B81 /* One Display 1.0.zip in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,7 +420,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-Display";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -460,7 +456,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-Display";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;

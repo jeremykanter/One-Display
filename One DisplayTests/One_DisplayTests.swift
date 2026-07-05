@@ -34,3 +34,22 @@ struct DesiredBuiltInStateTests {
         #expect(action != .disableBuiltIn)
     }
 }
+
+struct LidCloseSleepActionTests {
+
+    /// System Sleep Timer 0 = "prevent automatic sleeping when display off" is on
+    /// → sleep the displays only and keep the system awake.
+    @Test func zeroTimerSleepsDisplayOnly() {
+        #expect(lidCloseSleepAction(systemSleepTimerMinutes: 0) == .displaySleepOnly)
+    }
+
+    @Test func nonZeroTimerFullySleeps() {
+        #expect(lidCloseSleepAction(systemSleepTimerMinutes: 1) == .fullSleep)
+        #expect(lidCloseSleepAction(systemSleepTimerMinutes: 20) == .fullSleep)
+    }
+
+    /// Unreadable setting falls back to the previous full-sleep behavior.
+    @Test func unknownTimerFullySleeps() {
+        #expect(lidCloseSleepAction(systemSleepTimerMinutes: nil) == .fullSleep)
+    }
+}

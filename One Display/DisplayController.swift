@@ -34,6 +34,23 @@ func desiredBuiltInState(externalCount: Int, builtInActive: Bool) -> BuiltInActi
     }
 }
 
+/// How to put the machine to sleep when the lid closes with an external present.
+enum LidCloseSleepAction: Equatable {
+    case fullSleep
+    case displaySleepOnly
+}
+
+/// Pure decision function — no side effects, so it can be unit-tested.
+///
+/// When the active power profile is set to never auto-sleep the system while the
+/// display is off (System Sleep Timer == 0 — the "Prevent automatic sleeping …
+/// when the display is off" option), mirror that: sleep only the displays and
+/// leave the system awake. `nil` (unreadable) falls back to a full system sleep
+/// so behavior never regresses.
+func lidCloseSleepAction(systemSleepTimerMinutes: Int?) -> LidCloseSleepAction {
+    systemSleepTimerMinutes == 0 ? .displaySleepOnly : .fullSleep
+}
+
 /// Lightweight description of a display for the status UI.
 struct DisplayInfo: Identifiable {
     let id: CGDirectDisplayID
@@ -219,15 +236,60 @@ final class DisplayController: ObservableObject {
     private func handleLidClosed() {
         guard sleepOnLidClose else { return }
         guard !externalDisplayIDs().isEmpty else { return }   // OS already sleeps otherwise
-        appendLog("Lid closed with external connected → sleeping system.")
+
+        switch lidCloseSleepAction(systemSleepTimerMinutes: activeSystemSleepTimerMinutes()) {
+        case .displaySleepOnly:
+            appendLog("Lid closed with external → display sleep only (system stays awake per power setting).")
+            runPmset(["displaysleepnow"])
+        case .fullSleep:
+            appendLog("Lid closed with external → sleeping system.")
+            runPmset(["sleepnow"])
+        }
+    }
+
+    /// Launch `pmset` with the given arguments, logging any failure.
+    private func runPmset(_ arguments: [String]) {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
-        task.arguments = ["sleepnow"]
+        task.arguments = arguments
         do {
             try task.run()
         } catch {
-            appendLog("Sleep failed: \(error.localizedDescription)")
+            appendLog("pmset \(arguments.joined(separator: " ")) failed: \(error.localizedDescription)")
         }
+    }
+
+    /// The configured "System Sleep Timer" (minutes) for the active power source,
+    /// parsed from `pmset -g`, or `nil` if it can't be determined. A value of 0
+    /// means the system is set to never auto-sleep while the display is off (the
+    /// "Prevent automatic sleeping … when the display is off" option). `pmset -g`
+    /// already reports the currently active power source, so no AC/battery check
+    /// is needed here.
+    private func activeSystemSleepTimerMinutes() -> Int? {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
+        task.arguments = ["-g"]
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        do {
+            try task.run()
+        } catch {
+            appendLog("pmset -g failed: \(error.localizedDescription)")
+            return nil
+        }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        task.waitUntilExit()
+        guard let output = String(data: data, encoding: .utf8) else { return nil }
+
+        // Find the standalone `sleep` line (not `displaysleep`/`disksleep`). Its
+        // value may be followed by a "(sleep prevented by …)" note we ignore.
+        for line in output.split(separator: "\n") {
+            let tokens = line.split(whereSeparator: { $0 == " " || $0 == "\t" })
+            if tokens.count >= 2, tokens[0] == "sleep" {
+                return Int(tokens[1])
+            }
+        }
+        return nil
     }
 
     /// Called from the CoreGraphics reconfiguration callback (on the main actor).
