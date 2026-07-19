@@ -1,7 +1,15 @@
 {
-  "fill" : {
-    "automatic-gradient" : "srgb:1.00000,1.00000,1.00000,1.00000"
-  },
+  "fill-specializations" : [
+    {
+      "value" : {
+        "solid" : "srgb:1.00000,1.00000,1.00000,1.00000"
+      }
+    },
+    {
+      "appearance" : "dark",
+      "value" : "automatic"
+    }
+  ],
   "groups" : [
     {
       "layers" : [
@@ -29,7 +37,7 @@
               "value" : true
             }
           ],
-          "image-name" : "One Display Export.svg",
+          "image-name" : "One Display Export 2.svg",
           "name" : "One Display Export"
         }
       ],
