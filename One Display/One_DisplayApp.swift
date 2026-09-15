@@ -13,17 +13,23 @@ struct One_DisplayApp: App {
     /// Defaults off (a missing UserDefaults bool reads as `false`).
     @AppStorage("saveActivityLogs") private var saveActivityLogs = false
 
+    /// Per-window detail in the activity log. Off by default — window capture
+    /// runs every two seconds, so this is noisy by design and meant for
+    /// diagnosing a specific misbehaving window.
+    @AppStorage("verboseWindowLogging") private var verboseWindowLogging = false
+
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .frame(minWidth: 400, idealWidth: 400, maxWidth: .infinity, minHeight: 320, idealHeight: 320, maxHeight: .infinity)
+                .frame(minWidth: 400, idealWidth: 400, maxWidth: .infinity, minHeight: 400, idealHeight: 440, maxHeight: .infinity)
         }
         .windowStyle(.hiddenTitleBar)
-        .defaultSize(width: 400, height: 320)
+        .defaultSize(width: 400, height: 440)
         .windowResizability(.contentMinSize)
         .commands {
             CommandGroup(after: .help) {
                 Toggle("Save Activity Logs", isOn: $saveActivityLogs)
+                Toggle("Verbose Window Logging", isOn: $verboseWindowLogging)
             }
         }
     }
@@ -104,6 +110,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Safety net: never quit leaving the built-in panel disabled with no
         // watcher running to bring it back.
         DisplayController.shared.restoreBuiltInOnQuit()
+        // The debounced save does the real work; this is the clean-exit path.
+        DisplayController.shared.windowLayout.flush()
     }
 
     static var isRunningUnderTests: Bool {

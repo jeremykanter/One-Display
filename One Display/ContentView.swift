@@ -10,6 +10,8 @@ struct ContentView: View {
     @StateObject private var controller = DisplayController.shared
     @StateObject private var loginItem = LoginItemManager()
     @AppStorage("toggleShortcutEnabled") private var shortcutEnabled = true
+    @AppStorage("rememberWindowPositions") private var rememberWindowPositions = false
+    @ObservedObject private var windowLayout = DisplayController.shared.windowLayout
 
     var body: some View {
         VStack(alignment: .center, spacing: 32) {
@@ -51,10 +53,55 @@ struct ContentView: View {
                         .opacity(shortcutEnabled ? 1 : 0.5)
                         .pointerStyle(.default)
                 }
+                windowPositions
             }
         }
         .padding(32)
         .onAppear { loginItem.refresh() }
+    }
+
+    /// Opt-in window-position memory. Off by default: it needs Accessibility
+    /// access and moves other apps' windows, so it must never enable itself.
+    private var windowPositions: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle("Remember window positions for each display arrangement",
+                   isOn: $rememberWindowPositions)
+            .onChange(of: rememberWindowPositions) {
+                controller.applyWindowLayoutEnabledState()
+            }
+
+            if rememberWindowPositions {
+                if !windowLayout.axTrusted {
+                    HStack(alignment: .top, spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("One Display needs Accessibility access to move windows.")
+                            Button("Grant Access…") {
+                                windowLayout.requestAccessibilityPermission()
+                            }
+                            .controlSize(.small)
+                        }
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                } else if windowLayout.stageManagerActive {
+                    Text("Paused while Stage Manager is on — it places windows itself.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(windowLayout.lastRestoreSummary
+                             ?? "Learns each arrangement the first time you use it.")
+                        Spacer(minLength: 8)
+                        Button("Restore Now") { windowLayout.restoreNow() }
+                            .controlSize(.small)
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+            }
+        }
     }
 
     /// The status pill's color and label. Blue "Paused" while a temporary

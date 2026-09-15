@@ -71,8 +71,18 @@ private nonisolated func displayReconfigurationCallback(
     guard let userInfo else { return }
     let controller = Unmanaged<DisplayController>.fromOpaque(userInfo).takeUnretainedValue()
     // The first callback of every change is just a "begin" pre-notification with
-    // no useful flags — wait for the settled "after" callback.
-    if flags.contains(.beginConfigurationFlag) { return }
+    // no useful flags — wait for the settled "after" callback before acting on
+    // the display policy. It is still worth forwarding: it arrives before macOS
+    // rearranges windows, which is the only moment the window-layout feature can
+    // record where they actually were.
+    if flags.contains(.beginConfigurationFlag) {
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                controller.windowLayout.beginTransition()
+            }
+        }
+        return
+    }
     DispatchQueue.main.async {
         MainActor.assumeIsolated {
             controller.handleReconfiguration(display: display, flags: flags)
@@ -122,6 +132,9 @@ final class DisplayController: ObservableObject {
     /// fooled by the placeholder display macOS spins up to avoid zero displays.
     private var disabledBuiltInID: CGDirectDisplayID?
     private let lidMonitor = LidMonitor()
+    /// Remembers window positions per display arrangement. Opt-in and inert
+    /// until enabled from Settings.
+    let windowLayout = WindowLayoutManager()
 
     /// Activity log is mirrored to this file for easy sharing while testing.
     private let logFileURL = FileManager.default.homeDirectoryForCurrentUser
@@ -178,6 +191,10 @@ final class DisplayController: ObservableObject {
         }
         applyShortcutEnabledState()
 
+        windowLayout.onLog = { [weak self] message in self?.appendLog(message) }
+        windowLayout.policyIsStable = { [weak self] in self?.isPolicyStable ?? true }
+        applyWindowLayoutEnabledState()
+
         startLogFile()
         appendLog("Started — watching for display changes.")
         refreshDisplays()
@@ -231,6 +248,19 @@ final class DisplayController: ObservableObject {
         } else {
             KeyboardShortcuts.disable(.toggleBuiltInDisplay)
         }
+    }
+
+    /// Persisted on/off state of the window-position feature. Defaults off: it
+    /// needs the Accessibility permission and moves other apps' windows, so it
+    /// must never turn itself on.
+    private var rememberWindowPositionsSetting: Bool {
+        UserDefaults.standard.bool(forKey: "rememberWindowPositions")
+    }
+
+    /// Enable or disable window-position tracking to match the persisted
+    /// setting. Called on launch and whenever the Settings checkbox changes.
+    func applyWindowLayoutEnabledState() {
+        windowLayout.setEnabled(rememberWindowPositionsSetting)
     }
 
     private func handleLidClosed() {
@@ -294,6 +324,7 @@ final class DisplayController: ObservableObject {
 
     /// Called from the CoreGraphics reconfiguration callback (on the main actor).
     func handleReconfiguration(display: CGDirectDisplayID, flags: CGDisplayChangeSummaryFlags) {
+        windowLayout.beginTransition()
         appendLog("Reconfig: display \(display) [\(describe(flags))]")
 
         // A real external connect/disconnect ends any temporary override and lets
@@ -342,10 +373,12 @@ final class DisplayController: ObservableObject {
         guard !isApplying else { return }
         guard automationEnabled else {
             appendLog("Change detected (automation off — no action).")
+            windowLayout.policySettled(didMutate: false)
             return
         }
         guard !manualOverrideActive else {
             appendLog("Change detected (manual override held — no action).")
+            windowLayout.policySettled(didMutate: false)
             return
         }
 
@@ -359,14 +392,32 @@ final class DisplayController: ObservableObject {
 
         switch action {
         case .noChange:
-            return
+            windowLayout.policySettled(didMutate: false)
         case .disableBuiltIn:
             // Safety: only ever disable the built-in while an external is active.
-            guard !externals.isEmpty, let id = builtInID else { return }
+            guard !externals.isEmpty, let id = builtInID else {
+                windowLayout.policySettled(didMutate: false)
+                return
+            }
             performDisable(id)
+            windowLayout.policySettled(didMutate: true)
         case .enableBuiltIn:
             performEnable()
+            windowLayout.policySettled(didMutate: true)
         }
+    }
+
+    /// Whether the built-in display policy has nothing left to do right now.
+    ///
+    /// The window-layout feature checks this before moving anything: if a
+    /// disable or enable is still pending, another reconfiguration is coming and
+    /// restoring against the current geometry would be wasted work. Automation
+    /// being off (or an override being held) counts as stable — policy has
+    /// deliberately decided to do nothing.
+    var isPolicyStable: Bool {
+        guard automationEnabled, !manualOverrideActive else { return true }
+        return desiredBuiltInState(externalCount: externalDisplayIDs().count,
+                                   builtInActive: isBuiltInActive()) == .noChange
     }
 
     /// Re-enable the built-in panel synchronously on quit so the display is
