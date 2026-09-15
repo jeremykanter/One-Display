@@ -41,6 +41,15 @@ nonisolated final class AXWindowBridge: @unchecked Sendable {
     struct WindowDescription {
         let title: String
         let attributes: WindowAttributes
+        /// The window's true frame.
+        ///
+        /// Accessibility reports real geometry even while Mission Control, Show
+        /// Desktop or a Space switch is on screen; `CGWindowList` reports the
+        /// compositing transform instead (measured: a window really at
+        /// 857,402 853×705 is reported as 1145,485 548×452 in Mission Control and
+        /// -903,402 853×705 under Show Desktop). Anything that records or
+        /// compares a frame must use this, not the sweep's.
+        let frame: CGRect?
     }
 
     struct PlanEntry {
@@ -141,10 +150,32 @@ nonisolated final class AXWindowBridge: @unchecked Sendable {
                 for windowID in wanted {
                     guard let element = elements[windowID] else { continue }
                     result[windowID] = WindowDescription(title: title(of: element),
-                                                         attributes: attributes(of: element))
+                                                         attributes: attributes(of: element),
+                                                         frame: frame(of: element))
                 }
             }
 
+            DispatchQueue.main.async { completion(result) }
+        }
+    }
+
+    /// True frames for specific windows, without the cost of reading titles and
+    /// attributes. Used by capture to verify frames that appear to have changed.
+    func frames(_ requests: [CGWindowID: pid_t],
+                completion: @escaping @Sendable ([CGWindowID: CGRect]) -> Void) {
+        queue.async { [self] in
+            var result: [CGWindowID: CGRect] = [:]
+            var byPID: [pid_t: Set<CGWindowID>] = [:]
+            for (windowID, pid) in requests { byPID[pid, default: []].insert(windowID) }
+
+            for (pid, wanted) in byPID {
+                guard !isBlacklisted(pid) else { continue }
+                let elements = windowElements(for: pid, refreshing: false)
+                for windowID in wanted {
+                    guard let element = elements[windowID], let rect = frame(of: element) else { continue }
+                    result[windowID] = rect
+                }
+            }
             DispatchQueue.main.async { completion(result) }
         }
     }

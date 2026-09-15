@@ -90,6 +90,13 @@ final class WindowLayoutManager: ObservableObject {
     /// observations before a frame is committed. Rebuilt every sweep so it
     /// cannot accumulate entries for windows that have closed.
     private var lastObservedFrames: [CGWindowID: CGRect] = [:]
+    /// Frames Accessibility has confirmed. A sweep frame matching one of these is
+    /// trustworthy; anything else is re-checked before being recorded.
+    private var lastVerifiedFrames: [CGWindowID: CGRect] = [:]
+    /// Per-arrangement, per-window-ID frames for this session. Window IDs do not
+    /// change when a title does, which is what makes browsers and mail clients
+    /// restorable at all.
+    private var sessionFrames: [String: [CGWindowID: CGRect]] = [:]
 
     /// Screen power, from NSWorkspace's screen sleep/wake notifications. A
     /// DarkWake keeps the displays off, so no screensDidWake arrives during one —
@@ -156,6 +163,8 @@ final class WindowLayoutManager: ObservableObject {
         observers.removeAll()
         pendingRestores.removeAll()
         bindings.removeAll()
+        lastVerifiedFrames.removeAll()
+        sessionFrames.removeAll()
         bridge.invalidateAll()
         store.save()
         phase = .idle
@@ -325,26 +334,40 @@ final class WindowLayoutManager: ObservableObject {
                     skipCounts["no AX description", default: 0] += 1
                     continue
                 }
-                guard let match = matchRecord(identity: identity, in: records) else {
+                // Prefer this session's own record for this exact window. Window
+                // IDs survive title changes, so this is what makes browsers, mail
+                // clients and anything else with a churning title restorable —
+                // their title-based identity is different on every restore.
+                // Title matching remains the fallback across relaunches.
+                let target: CGRect
+                let tier: String
+                let resistant = store.existingRecord(config: key, identity: identity)?.resistant ?? false
+                if let sessionFrame = self.sessionFrames[key]?[snapshot.windowID] {
+                    target = sessionFrame
+                    tier = "window"
+                } else if let match = matchRecord(identity: identity, in: records) {
+                    target = match.record.frame
+                    tier = match.tier.rawValue
+                } else {
                     skipCounts["nothing remembered", default: 0] += 1
                     continue
                 }
 
-                let decision = restoreDecision(current: snapshot.frame,
-                                               target: match.record.frame,
+                // Accessibility's frame is the real one; the sweep's may be a
+                // Mission Control or Show Desktop transform.
+                let current = description.frame ?? snapshot.frame
+                let decision = restoreDecision(current: current,
+                                               target: target,
                                                attributes: description.attributes,
                                                activeDisplays: displays,
-                                               resistant: match.record.resistant)
+                                               resistant: resistant)
                 switch decision {
-                case .restore(let target):
-                    plan.append(.init(windowID: snapshot.windowID, pid: snapshot.pid, target: target))
-                    targets[snapshot.windowID] = (identity, target, name)
-                    // `.ordinal` is a weak match — it can pair a window with an
-                    // unrelated window of the same app, so call it out by name.
+                case .restore(let wanted):
+                    plan.append(.init(windowID: snapshot.windowID, pid: snapshot.pid, target: wanted))
+                    targets[snapshot.windowID] = (identity, wanted, name)
                     self.log("Window layouts: plan \(name) [win \(snapshot.windowID)] "
-                             + "\(Self.fmt(snapshot.frame)) → \(Self.fmt(target)) "
-                             + "(match: \(match.tier.rawValue)"
-                             + "\(match.record.resistant ? ", resistant" : ""))")
+                             + "\(Self.fmt(current)) → \(Self.fmt(wanted)) "
+                             + "(match: \(tier)\(resistant ? ", resistant" : ""))")
                 default:
                     let label = String(describing: decision)
                     skipCounts[label, default: 0] += 1
@@ -400,11 +423,17 @@ final class WindowLayoutManager: ObservableObject {
                 log("Window layouts: \(wanted.name) [win \(windowID)] asked \(Self.fmt(wanted.target)) "
                     + "got \(Self.fmt(actual)) — marking resistant.")
                 store.markResistant(config: key, identity: wanted.identity, achievedFrame: actual)
+                // Remember what the app settled on for this window too, so the
+                // next restore does not immediately re-fight it.
+                sessionFrames[key, default: [:]][windowID] = actual
+                lastVerifiedFrames[windowID] = actual
                 resisted += 1
             } else {
                 if verboseLogging {
                     log("Window layouts: \(wanted.name) [win \(windowID)] → \(Self.fmt(actual)) ✓")
                 }
+                sessionFrames[key, default: [:]][windowID] = actual
+                lastVerifiedFrames[windowID] = actual
                 moved += 1
             }
         }
@@ -492,52 +521,95 @@ final class WindowLayoutManager: ObservableObject {
 
         let identities = identities(for: snapshots, descriptions: [:])
         let verbose = verboseLogging
-        let previousObservations = lastObservedFrames
-        var observations: [CGWindowID: CGRect] = [:]
+
+        // The sweep is cheap but it is not always telling the truth: while
+        // Mission Control, Show Desktop or a Space switch is on screen, it
+        // reports the compositing transform rather than the window's real frame.
+        // Accessibility reports the real frame throughout, so any frame that does
+        // not match one Accessibility has already confirmed gets re-checked
+        // before it is allowed anywhere near the store.
+        var trusted: [CGWindowID: CGRect] = [:]
+        var needsVerification: [CGWindowID: pid_t] = [:]
+        for snapshot in snapshots {
+            if let verified = lastVerifiedFrames[snapshot.windowID],
+               !framesDiffer(verified, snapshot.frame) {
+                trusted[snapshot.windowID] = snapshot.frame
+            } else {
+                needsVerification[snapshot.windowID] = snapshot.pid
+            }
+        }
+
+        commit(trusted, into: key, snapshots: snapshots, identities: identities, verbose: verbose)
+
+        guard !needsVerification.isEmpty, axTrusted else { return }
+        bridge.frames(needsVerification) { [weak self] axFrames in
+            MainActor.assumeIsolated {
+                guard let self, self.isEnabled else { return }
+                for (windowID, frame) in axFrames { self.lastVerifiedFrames[windowID] = frame }
+                if verbose {
+                    for snapshot in snapshots {
+                        guard let real = axFrames[snapshot.windowID],
+                              framesDiffer(real, snapshot.frame) else { continue }
+                        self.log("Window layouts: sweep reported "
+                                 + "\(self.appName(for: snapshot.pid)) [win \(snapshot.windowID)] at "
+                                 + "\(Self.fmt(snapshot.frame)) but it is really at \(Self.fmt(real)) "
+                                 + "— using the real frame.")
+                    }
+                }
+                self.commit(axFrames, into: key, snapshots: snapshots,
+                            identities: identities, verbose: verbose)
+            }
+        }
+    }
+
+    /// Record frames that are known to be real, subject to the settling rule.
+    private func commit(_ frames: [CGWindowID: CGRect],
+                        into key: String,
+                        snapshots: [WindowSnapshot],
+                        identities: [CGWindowID: WindowIdentity],
+                        verbose: Bool) {
+        guard !frames.isEmpty else { return }
 
         for snapshot in snapshots {
-            observations[snapshot.windowID] = snapshot.frame
+            guard let frame = frames[snapshot.windowID] else { continue }
+            let previous = lastObservedFrames[snapshot.windowID]
+            lastObservedFrames[snapshot.windowID] = frame
             guard let identity = identities[snapshot.windowID] else { continue }
 
             // A frame is only worth remembering once the window has held it
-            // across two sweeps. Otherwise capture can sample a minimize
-            // animation — which shrinks a window while sliding it toward the
-            // Dock — or the shuffle macOS performs just after a display change,
-            // and store that transient geometry as if it were real.
-            guard frameIsSettled(previous: previousObservations[snapshot.windowID],
-                                 current: snapshot.frame) else {
-                if verbose, previousObservations[snapshot.windowID] != nil {
+            // across two sweeps, so a window still being dragged or resized is
+            // not recorded mid-flight.
+            guard frameIsSettled(previous: previous, current: frame) else {
+                if verbose, previous != nil {
                     log("Window layouts: still moving, not recording "
                         + "\(appName(for: snapshot.pid)) [win \(snapshot.windowID)] "
-                        + "\(Self.fmt(snapshot.frame))")
+                        + "\(Self.fmt(frame))")
                 }
                 continue
             }
 
-            // What we record here is exactly what a later restore will replay,
-            // so a bad frame captured now is a bad restore later. Report frames
-            // that shrank sharply even when verbose logging is off.
-            if let previous = store.existingRecord(config: key, identity: identity)?.frame,
-               framesDiffer(previous, snapshot.frame) {
+            if let recorded = store.existingRecord(config: key, identity: identity)?.frame,
+               framesDiffer(recorded, frame) {
                 let name = appName(for: snapshot.pid)
-                if isSuspiciousFrameChange(from: previous, to: snapshot.frame) {
+                if isSuspiciousFrameChange(from: recorded, to: frame) {
                     log("Window layouts: SUSPECT capture — \(name) [win \(snapshot.windowID)] "
-                        + "\(Self.fmt(previous)) → \(Self.fmt(snapshot.frame)); "
-                        + "shrank sharply but held still for two sweeps.")
+                        + "\(Self.fmt(recorded)) → \(Self.fmt(frame)); shrank sharply.")
                 } else if verbose {
                     log("Window layouts: capture \(name) [win \(snapshot.windowID)] "
-                        + "\(Self.fmt(previous)) → \(Self.fmt(snapshot.frame))")
+                        + "\(Self.fmt(recorded)) → \(Self.fmt(frame))")
                 }
             }
 
-            let center = CGPoint(x: snapshot.frame.midX, y: snapshot.frame.midY)
+            // Window IDs are stable for a window's whole life regardless of what
+            // its title does, so this is the exact match a later restore prefers.
+            sessionFrames[key, default: [:]][snapshot.windowID] = frame
+
+            let center = CGPoint(x: frame.midX, y: frame.midY)
             store.record(config: key,
                          identity: identity,
-                         frame: snapshot.frame,
+                         frame: frame,
                          displayUUID: snapshotter.displayUUID(containing: center) ?? "")
         }
-
-        lastObservedFrames = observations
     }
 
     /// Windows worth tracking: owned by a regular (Dock-visible) app that we
@@ -568,6 +640,10 @@ final class WindowLayoutManager: ObservableObject {
         let before = bindings.count
         bindings = bindings.filter { live.contains($0.key) }
         lastObservedFrames = lastObservedFrames.filter { live.contains($0.key) }
+        lastVerifiedFrames = lastVerifiedFrames.filter { live.contains($0.key) }
+        for (config, frames) in sessionFrames {
+            sessionFrames[config] = frames.filter { live.contains($0.key) }
+        }
         if verboseLogging, before != bindings.count {
             log("Window layouts: pruned \(before - bindings.count) binding(s) for closed windows.")
         }
