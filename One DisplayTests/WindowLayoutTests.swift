@@ -406,8 +406,8 @@ struct GeometryTrustTests {
                                             now: now))
     }
 
-    /// The Mimestream incident: a capture 22 s into a DarkWake, screens off,
-    /// recorded the window at a uniform 0.44× shrink it never actually had.
+    /// Display sleep and DarkWake both keep the screens off; geometry reported
+    /// then cannot be verified, so it must never be captured or restored against.
     @Test func screensAsleepIsNeverTrustworthy() {
         #expect(!windowGeometryIsTrustworthy(screensAsleep: true,
                                              anyActiveDisplayAsleep: false,
@@ -423,8 +423,7 @@ struct GeometryTrustTests {
                                              now: now))
     }
 
-    /// Geometry keeps settling for a moment after the screens come on — the
-    /// 34-second trackpad-bump wake at 10:40 is exactly this kind of window.
+    /// Geometry keeps settling for a moment after the screens come on.
     @Test func justWokenIsNotYetTrustworthy() {
         #expect(!windowGeometryIsTrustworthy(screensAsleep: false,
                                              anyActiveDisplayAsleep: false,

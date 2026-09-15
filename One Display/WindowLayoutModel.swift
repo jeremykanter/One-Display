@@ -364,14 +364,14 @@ nonisolated func restoreDecision(current: CGRect,
 
 /// Whether window geometry reported by the WindowServer can be trusted right now.
 ///
-/// It cannot while the displays are off. During a DarkWake — the brief
-/// maintenance wakes a sleeping Mac performs with the lid closed — apps keep
-/// running and `CGWindowListCopyWindowInfo` keeps answering, but it reports
-/// windows at scaled-down, relocated geometry: Mimestream's 1280×1410 window was
-/// captured as 566×624, a uniform 0.44× shrink, 22 s into a DarkWake. Capturing
-/// then records a frame the window never had; restoring then moves windows
-/// against geometry that is not real and marks them "resistant" based on
-/// bogus read-backs.
+/// Defensive: this is not the confirmed cause of any observed bad restore. While
+/// the displays are off — display sleep, or the brief DarkWakes a sleeping Mac
+/// performs with its lid closed — apps keep running and CGWindowList keeps
+/// answering, but nothing about the geometry it reports can be seen or checked,
+/// and a frame captured then is replayed by a later restore as if it were real.
+/// Restoring then is equally blind, and its read-backs feed the "resistant"
+/// bookkeeping. Nothing is lost by waiting: the last capture before the
+/// displays slept still stands, and restores are deferred until they wake.
 ///
 /// Even after the displays wake, geometry keeps settling for a moment, so a
 /// short quiet period is required before trusting it again.

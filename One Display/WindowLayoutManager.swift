@@ -246,9 +246,9 @@ final class WindowLayoutManager: ObservableObject {
             return
         }
 
-        // Gate 2b: displays unplugged while the Mac is asleep are handled during a
-        // DarkWake with the screens off. Geometry is not real then, so defer. The
-        // arrangement key is deliberately NOT advanced, so the change is still
+        // Gate 2b: a display unplugged while the Mac is asleep is processed during a
+        // DarkWake with the screens off, when geometry cannot be trusted, so defer.
+        // The arrangement key is deliberately NOT advanced, so the change is still
         // detected when the screens wake.
         guard geometryIsTrustworthy else {
             log("Window layouts: displays are off — deferring restore until they wake.")
