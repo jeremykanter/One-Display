@@ -51,6 +51,37 @@ func lidCloseSleepAction(systemSleepTimerMinutes: Int?) -> LidCloseSleepAction {
     systemSleepTimerMinutes == 0 ? .displaySleepOnly : .fullSleep
 }
 
+/// What to do for the built-in panel once the screens come back on.
+enum WakeRecoveryAction: Equatable {
+    case retryEnable
+    case reevaluate
+}
+
+/// Pure decision function — no side effects, so it can be unit-tested.
+///
+/// An enable attempted while the panels were asleep is refused by the
+/// WindowServer, and the placeholder display macOS spins up in that state makes
+/// the normal policy read "an external is still here". So the only trustworthy
+/// signal on wake is our own recorded intent: if we wanted the built-in on and
+/// it still isn't, try again.
+func wakeRecoveryAction(pendingEnable: Bool, builtInActive: Bool) -> WakeRecoveryAction {
+    pendingEnable && !builtInActive ? .retryEnable : .reevaluate
+}
+
+/// Pure decision function — no side effects, so it can be unit-tested.
+///
+/// Backoff between repeated enable attempts, or `nil` once we have tried enough
+/// times and should wait for the next display change or wake instead of
+/// hammering the WindowServer.
+func enableRetryDelay(attempt: Int) -> TimeInterval? {
+    switch attempt {
+    case 0: return 1
+    case 1: return 3
+    case 2: return 8
+    default: return nil
+    }
+}
+
 /// Lightweight description of a display for the status UI.
 struct DisplayInfo: Identifiable {
     let id: CGDirectDisplayID
@@ -131,6 +162,32 @@ final class DisplayController: ObservableObject {
     /// otherwise. Lets us re-enable on the external's removal event without being
     /// fooled by the placeholder display macOS spins up to avoid zero displays.
     private var disabledBuiltInID: CGDirectDisplayID?
+    /// True between a screens-asleep and a screens-awake notification. The
+    /// WindowServer refuses `.forSession` display configurations while the
+    /// panels are off — it blocks for ~10 s and then fails — so everything the
+    /// policy wants to do is recorded and settled on wake instead.
+    private var screensAsleep = false
+    /// A policy evaluation was skipped because the screens were asleep.
+    private var needsApplyOnWake = false
+    /// True while we want the built-in panel on but have not confirmed that it
+    /// is. Survives sleep, which is what lets the wake handler finish the job
+    /// after an unplug the WindowServer refused to act on.
+    private var pendingBuiltInEnable = false
+    /// Pending verify/retry pass for an enable that has not taken effect yet.
+    private var enableRetryWork: DispatchWorkItem?
+    private var enableAttempt = 0
+    /// Settle pass scheduled after the screens come back.
+    private var wakeWork: DispatchWorkItem?
+    /// Slow re-check while work is deferred. The wake notification is the
+    /// primary trigger; this makes sure a missed notification — or panels that
+    /// read as asleep outside a real sleep cycle — can never leave the built-in
+    /// dark with nothing coming to fix it.
+    private var deferredRecheckWork: DispatchWorkItem?
+    private static let deferredRecheckInterval: TimeInterval = 5
+    private var sleepObservers: [NSObjectProtocol] = []
+    /// How long to let the WindowServer settle after a wake before acting. It is
+    /// still shuffling displays for a moment after the panels light up.
+    private static let wakeSettleDelay: TimeInterval = 1.0
     private let lidMonitor = LidMonitor()
     /// Remembers window positions per display arrangement. Opt-in and inert
     /// until enabled from Settings.
@@ -177,6 +234,35 @@ final class DisplayController: ObservableObject {
                 self?.scheduleApply()
             }
         }
+
+        // Sleep/wake. Nothing else re-evaluates the policy when the screens come
+        // back: the AppKit notification above fires on some wakes but not
+        // others, and the reconfiguration callback never fires for a change that
+        // happened while the Mac was asleep.
+        let workspace = NSWorkspace.shared.notificationCenter
+        for name in [NSWorkspace.willSleepNotification, NSWorkspace.screensDidSleepNotification] {
+            sleepObservers.append(workspace.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.handleScreensAsleep()
+                }
+            })
+        }
+        sleepObservers.append(workspace.addObserver(forName: NSWorkspace.screensDidWakeNotification,
+                                                    object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.handleScreensDidWake()
+            }
+        })
+        // A system wake with the panels still off is a DarkWake — acting then
+        // would hit the same refusal that started this. Check the hardware
+        // rather than our own flag, which the screens-wake notification clears.
+        sleepObservers.append(workspace.addObserver(forName: NSWorkspace.didWakeNotification,
+                                                    object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, !self.panelsAreAsleep() else { return }
+                self.handleScreensDidWake()
+            }
+        })
 
         // Sleep on lid close (override clamshell) when an external is connected.
         lidMonitor.onLidClosed = { [weak self] in
@@ -322,10 +408,97 @@ final class DisplayController: ObservableObject {
         return nil
     }
 
+    // MARK: Sleep and wake
+
+    private func handleScreensAsleep() {
+        guard !screensAsleep else { return }
+        screensAsleep = true
+        wakeWork?.cancel()
+        wakeWork = nil
+        enableRetryWork?.cancel()
+        enableRetryWork = nil
+        appendLog("Screens asleep — deferring display changes until wake.")
+    }
+
+    private func handleScreensDidWake() {
+        screensAsleep = false
+        wakeWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.handleScreensAwake()
+        }
+        wakeWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.wakeSettleDelay, execute: work)
+    }
+
+    /// Keep checking for as long as something is deferred, in case the wake
+    /// notification never arrives.
+    private func scheduleDeferredRecheck() {
+        guard needsApplyOnWake || pendingBuiltInEnable else { return }
+        guard deferredRecheckWork == nil else { return }
+        let work = DispatchWorkItem { [weak self] in
+            self?.deferredRecheckFired()
+        }
+        deferredRecheckWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.deferredRecheckInterval, execute: work)
+    }
+
+    private func deferredRecheckFired() {
+        deferredRecheckWork = nil
+        guard needsApplyOnWake || pendingBuiltInEnable else { return }
+        guard !displaysAreAsleep() else {
+            scheduleDeferredRecheck()
+            return
+        }
+        handleScreensAwake()
+    }
+
+    /// The screens are back and settled: finish whatever we deferred.
+    private func handleScreensAwake() {
+        wakeWork = nil
+        deferredRecheckWork?.cancel()
+        deferredRecheckWork = nil
+        refreshDisplays()
+
+        switch wakeRecoveryAction(pendingEnable: pendingBuiltInEnable,
+                                  builtInActive: isBuiltInActive()) {
+        case .retryEnable:
+            appendLog("Wake: built-in should be on but isn't — re-enabling.")
+            enableAttempt = 0
+            performEnable()
+        case .reevaluate:
+            if needsApplyOnWake {
+                appendLog("Wake: re-evaluating display change deferred during sleep.")
+            }
+        }
+        needsApplyOnWake = false
+        scheduleDeferredRecheck()
+
+        // Always re-evaluate. It is idempotent, it catches a dock or undock that
+        // happened while the Mac slept, and it is what corrects the re-enable
+        // above if an external turns out to be attached after all.
+        scheduleApply()
+    }
+
+    /// Whether the panels themselves report as off, independent of whether we
+    /// saw the notification. A second, polled signal so a missed notification —
+    /// or launching while the displays are already asleep — cannot leave us
+    /// pushing configurations the WindowServer will refuse.
+    private func panelsAreAsleep() -> Bool {
+        let ids = activeDisplayIDs()
+        return ids.isEmpty || ids.contains { CGDisplayIsAsleep($0) != 0 }
+    }
+
+    private func displaysAreAsleep() -> Bool {
+        screensAsleep || panelsAreAsleep()
+    }
+
     /// Called from the CoreGraphics reconfiguration callback (on the main actor).
     func handleReconfiguration(display: CGDirectDisplayID, flags: CGDisplayChangeSummaryFlags) {
         windowLayout.beginTransition()
         appendLog("Reconfig: display \(display) [\(describe(flags))]")
+        if flags.contains(.addFlag) || flags.contains(.removeFlag) {
+            appendLog("  display \(display): \(describeIdentity(display))")
+        }
 
         // A real external connect/disconnect ends any temporary override and lets
         // automation take over again. Built-in enable/disable events (our own toggle
@@ -335,6 +508,24 @@ final class DisplayController: ObservableObject {
            CGDisplayIsBuiltin(display) == 0 {
             appendLog("External hotplug — override cleared, automation resumes.")
             manualOverrideActive = false
+        }
+
+        // While the panels are asleep the WindowServer refuses display
+        // configuration changes (it blocks for ~10 s, then fails) and adds a
+        // placeholder display that makes the policy read "an external is still
+        // here". Record what we want and settle it on wake instead.
+        if displaysAreAsleep() {
+            if flags.contains(.removeFlag),
+               automationEnabled,
+               let disabledID = disabledBuiltInID,
+               display != disabledID {
+                pendingBuiltInEnable = true
+                appendLog("External \(display) removed while screens asleep → re-enabling on wake.")
+            }
+            needsApplyOnWake = true
+            scheduleDeferredRecheck()
+            windowLayout.policySettled(didMutate: false)
+            return
         }
 
         // If a display other than the one we disabled is removed while we hold
@@ -381,6 +572,13 @@ final class DisplayController: ObservableObject {
             windowLayout.policySettled(didMutate: false)
             return
         }
+        guard !displaysAreAsleep() else {
+            appendLog("Change detected (screens asleep — deferring to wake).")
+            needsApplyOnWake = true
+            scheduleDeferredRecheck()
+            windowLayout.policySettled(didMutate: false)
+            return
+        }
 
         let externals = externalDisplayIDs()
         let builtInActive = isBuiltInActive()
@@ -416,6 +614,7 @@ final class DisplayController: ObservableObject {
     /// deliberately decided to do nothing.
     var isPolicyStable: Bool {
         guard automationEnabled, !manualOverrideActive else { return true }
+        guard !displaysAreAsleep() else { return true }
         return desiredBuiltInState(externalCount: externalDisplayIDs().count,
                                    builtInActive: isBuiltInActive()) == .noChange
     }
@@ -475,6 +674,9 @@ final class DisplayController: ObservableObject {
             return
         }
         disabledBuiltInID = id
+        // Policy deliberately wants the panel off; any enable we were still
+        // chasing is superseded.
+        clearPendingEnable()
         refreshDisplays()
         appendLog("Applied: built-in DISABLED.")
     }
@@ -483,6 +685,16 @@ final class DisplayController: ObservableObject {
     /// path on macOS 26 (the log showed `CGRestorePermanentDisplayConfiguration`
     /// leaving the panel dark); permanent-config restore is the fallback.
     private func performEnable(verify: Bool = true) {
+        // `verify: false` is the quit path — it must run regardless, so the
+        // panel is never left disabled with no watcher running.
+        if verify, displaysAreAsleep() {
+            pendingBuiltInEnable = true
+            appendLog("Enable deferred — screens are asleep; re-enabling on wake.")
+            scheduleDeferredRecheck()
+            return
+        }
+
+        pendingBuiltInEnable = true
         if let id = builtInDisplayID() {
             explicitEnable(id)
         } else {
@@ -490,14 +702,65 @@ final class DisplayController: ObservableObject {
             applyRestore()
         }
 
-        guard verify else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
-            guard let self else { return }
-            if !self.isBuiltInActive() {
-                self.appendLog("Built-in still off after explicit enable — restoring permanent config.")
-                self.applyRestore()
-            }
+        guard verify, pendingBuiltInEnable else { return }
+        enableRetryWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            self?.verifyEnable()
         }
+        enableRetryWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: work)
+    }
+
+    /// Confirm the panel really came back; fall back to the permanent-config
+    /// restore, then retry on a bounded backoff. The WindowServer refuses the
+    /// occasional attempt right after a display change, and a refused enable
+    /// used to leave the machine with a dark built-in and nothing retrying.
+    private func verifyEnable() {
+        enableRetryWork = nil
+        guard pendingBuiltInEnable else { return }
+        if isBuiltInActive() {
+            clearPendingEnable()
+            return
+        }
+
+        appendLog("Built-in still off after explicit enable — restoring permanent config.")
+        applyRestore()
+        guard pendingBuiltInEnable else { return }
+
+        guard !displaysAreAsleep() else {
+            appendLog("Built-in still off and screens are asleep — retrying on wake.")
+            scheduleDeferredRecheck()
+            return
+        }
+        guard let delay = enableRetryDelay(attempt: enableAttempt) else {
+            appendLog("Error: built-in still off after \(enableAttempt) retries — "
+                      + "waiting for the next display change or wake.")
+            enableAttempt = 0
+            return
+        }
+        enableAttempt += 1
+        appendLog("Built-in still off — retrying enable in \(Int(delay))s.")
+        let work = DispatchWorkItem { [weak self] in
+            self?.performEnable()
+        }
+        enableRetryWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
+    }
+
+    /// We are no longer waiting for an enable to take effect.
+    private func clearPendingEnable() {
+        pendingBuiltInEnable = false
+        enableAttempt = 0
+        enableRetryWork?.cancel()
+        enableRetryWork = nil
+    }
+
+    /// The built-in came back: we are neither holding it off nor still chasing
+    /// an enable.
+    private func clearHoldIfBuiltInActive() {
+        guard isBuiltInActive() else { return }
+        disabledBuiltInID = nil
+        clearPendingEnable()
     }
 
     /// Enable a specific display via the private SkyLight API.
@@ -517,9 +780,15 @@ final class DisplayController: ObservableObject {
             return
         }
         let completeErr = CGCompleteDisplayConfiguration(config, .forSession)
-        if isBuiltInActive() { disabledBuiltInID = nil }
+        clearHoldIfBuiltInActive()
         refreshDisplays()
-        appendLog("Applied: explicit enable (complete=\(completeErr.rawValue)).")
+        if completeErr == .success {
+            appendLog("Applied: explicit enable.")
+        } else {
+            // Seen as 1014 when the panels are asleep — undocumented, and the
+            // call blocks for ~10 s before returning it.
+            appendLog("Error: CGCompleteDisplayConfiguration(enable) returned \(completeErr.rawValue).")
+        }
     }
 
     /// Public fallback that clears any temporary (`.forSession`) display changes.
@@ -527,7 +796,7 @@ final class DisplayController: ObservableObject {
         isApplying = true
         CGRestorePermanentDisplayConfiguration()
         isApplying = false
-        if isBuiltInActive() { disabledBuiltInID = nil }
+        clearHoldIfBuiltInActive()
         refreshDisplays()
         appendLog("Applied: restored permanent display configuration.")
     }
@@ -600,6 +869,23 @@ final class DisplayController: ObservableObject {
         if flags.contains(.setMainFlag) { parts.append("setMain") }
         if flags.contains(.setModeFlag) { parts.append("setMode") }
         return parts.isEmpty ? "—" : parts.joined(separator: ",")
+    }
+
+    /// Identity attributes for a display, logged on every hotplug. macOS spins
+    /// up a placeholder display when the last real one goes away while the
+    /// built-in is held off; the log is how we learn to recognize it.
+    private func describeIdentity(_ id: CGDirectDisplayID) -> String {
+        let size = CGDisplayScreenSize(id)
+        let name = NSScreen.screens.first {
+            ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?
+                .uint32Value == id
+        }?.localizedName ?? "—"
+        return "vendor=\(CGDisplayVendorNumber(id)) model=\(CGDisplayModelNumber(id)) "
+            + "serial=\(CGDisplaySerialNumber(id)) unit=\(CGDisplayUnitNumber(id)) "
+            + "size=\(Int(size.width))×\(Int(size.height))mm "
+            + "builtIn=\(CGDisplayIsBuiltin(id) != 0) online=\(CGDisplayIsOnline(id) != 0) "
+            + "active=\(CGDisplayIsActive(id) != 0) asleep=\(CGDisplayIsAsleep(id) != 0) "
+            + "name=\"\(name)\""
     }
 
     private func appendLog(_ message: String) {

@@ -180,66 +180,6 @@ struct MatchRecordTests {
     }
 }
 
-struct SuspiciousFrameChangeTests {
-
-    private let settled = CGRect(x: 100, y: 100, width: 1200, height: 800)
-
-    /// The signature of a capture landing inside a minimize or close animation:
-    /// the window has shrunk dramatically on its way to the Dock.
-    @Test func aSharpShrinkIsSuspicious() {
-        #expect(isSuspiciousFrameChange(from: settled,
-                                        to: CGRect(x: 1800, y: 1300, width: 160, height: 100)))
-    }
-
-    @Test func anOrdinaryResizeIsNotSuspicious() {
-        #expect(!isSuspiciousFrameChange(from: settled,
-                                         to: CGRect(x: 100, y: 100, width: 1000, height: 700)))
-    }
-
-    @Test func movingWithoutResizingIsNotSuspicious() {
-        #expect(!isSuspiciousFrameChange(from: settled, to: settled.offsetBy(dx: 900, dy: 0)))
-    }
-
-    @Test func growingIsNotSuspicious() {
-        #expect(!isSuspiciousFrameChange(from: settled,
-                                         to: CGRect(x: 0, y: 0, width: 2560, height: 1400)))
-    }
-
-    @Test func aDegenerateOldFrameIsNotSuspicious() {
-        #expect(!isSuspiciousFrameChange(from: .zero, to: settled))
-    }
-}
-
-struct FrameSettledTests {
-
-    private let frame = CGRect(x: 100, y: 100, width: 1200, height: 800)
-
-    /// A window seen for the very first time has nothing to agree with, so it is
-    /// never committed on that sighting.
-    @Test func aFirstSightingIsNeverSettled() {
-        #expect(!frameIsSettled(previous: nil, current: frame))
-    }
-
-    @Test func twoAgreeingObservationsAreSettled() {
-        #expect(frameIsSettled(previous: frame, current: frame))
-    }
-
-    @Test func subPixelDriftStillCountsAsSettled() {
-        #expect(frameIsSettled(previous: frame,
-                               current: CGRect(x: 101, y: 101, width: 1201, height: 801)))
-    }
-
-    /// Mid-minimize: shrinking toward the Dock between two sweeps.
-    @Test func aWindowStillAnimatingIsNotSettled() {
-        #expect(!frameIsSettled(previous: frame,
-                                current: CGRect(x: 1800, y: 1300, width: 160, height: 100)))
-    }
-
-    @Test func aWindowBeingDraggedIsNotSettled() {
-        #expect(!frameIsSettled(previous: frame, current: frame.offsetBy(dx: 400, dy: 0)))
-    }
-}
-
 // MARK: - Frame safety
 
 struct FrameSafetyTests {

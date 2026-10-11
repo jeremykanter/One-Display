@@ -260,21 +260,6 @@ nonisolated func frameIsSettled(previous: CGRect?,
     return !framesDiffer(previous, current, tolerance: tolerance)
 }
 
-/// Whether a newly observed frame looks like it was sampled mid-animation
-/// rather than after the window settled.
-///
-/// Minimize, close, and Mission Control all shrink a window over ~0.4-0.7 s
-/// while sliding it toward a screen edge. A capture that lands inside that
-/// window records a tiny, half-off-screen frame as if it were the real one.
-nonisolated func isSuspiciousFrameChange(from old: CGRect,
-                                         to new: CGRect,
-                                         areaRatio: CGFloat = 0.5) -> Bool {
-    let oldArea = old.width * old.height
-    let newArea = new.width * new.height
-    guard oldArea > 0, newArea >= 0 else { return false }
-    return newArea < oldArea * areaRatio
-}
-
 // MARK: - Frame safety
 
 /// The part of a window the user can grab to drag it: the top 40 pt, inset from

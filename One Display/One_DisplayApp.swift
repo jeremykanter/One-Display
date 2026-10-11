@@ -13,11 +13,6 @@ struct One_DisplayApp: App {
     /// Defaults off (a missing UserDefaults bool reads as `false`).
     @AppStorage("saveActivityLogs") private var saveActivityLogs = false
 
-    /// Per-window detail in the activity log. Off by default — window capture
-    /// runs every two seconds, so this is noisy by design and meant for
-    /// diagnosing a specific misbehaving window.
-    @AppStorage("verboseWindowLogging") private var verboseWindowLogging = false
-
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -29,7 +24,6 @@ struct One_DisplayApp: App {
         .commands {
             CommandGroup(after: .help) {
                 Toggle("Save Activity Logs", isOn: $saveActivityLogs)
-                Toggle("Verbose Window Logging", isOn: $verboseWindowLogging)
             }
         }
     }

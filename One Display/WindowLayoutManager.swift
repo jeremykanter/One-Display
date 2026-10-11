@@ -588,16 +588,11 @@ final class WindowLayoutManager: ObservableObject {
                 continue
             }
 
-            if let recorded = store.existingRecord(config: key, identity: identity)?.frame,
+            if verbose,
+               let recorded = store.existingRecord(config: key, identity: identity)?.frame,
                framesDiffer(recorded, frame) {
-                let name = appName(for: snapshot.pid)
-                if isSuspiciousFrameChange(from: recorded, to: frame) {
-                    log("Window layouts: SUSPECT capture — \(name) [win \(snapshot.windowID)] "
-                        + "\(Self.fmt(recorded)) → \(Self.fmt(frame)); shrank sharply.")
-                } else if verbose {
-                    log("Window layouts: capture \(name) [win \(snapshot.windowID)] "
-                        + "\(Self.fmt(recorded)) → \(Self.fmt(frame))")
-                }
+                log("Window layouts: capture \(appName(for: snapshot.pid)) [win \(snapshot.windowID)] "
+                    + "\(Self.fmt(recorded)) → \(Self.fmt(frame))")
             }
 
             // Window IDs are stable for a window's whole life regardless of what
@@ -891,10 +886,12 @@ final class WindowLayoutManager: ObservableObject {
                                     quietPeriod: Self.wakeQuietPeriod)
     }
 
-    /// Extra per-window detail. Off by default because capture runs every two
-    /// seconds; enable from Help → "Verbose Window Logging" when diagnosing.
+    /// Per-window detail — every recorded frame change, every skipped window.
+    /// Included whenever Help → "Save Activity Logs" is on: anyone saving logs is
+    /// diagnosing something, and that is exactly when the detail is needed.
+    /// Otherwise it is suppressed, since capture runs every two seconds.
     private var verboseLogging: Bool {
-        UserDefaults.standard.bool(forKey: "verboseWindowLogging")
+        UserDefaults.standard.bool(forKey: "saveActivityLogs")
     }
 
     private func appName(for pid: pid_t) -> String {
