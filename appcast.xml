@@ -8,7 +8,7 @@
             <sparkle:version>3</sparkle:version>
             <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <description sparkle:format="markdown">Sparkle test build.</description>
+            <description sparkle:format="plain-text">Sparkle test build.</description>
             <enclosure url="https://github.com/jeremykanter/One-Display/releases/download/1.0.3/One-Display-1.0.3.zip" length="3028483" type="application/octet-stream" sparkle:edSignature="PUg+w7qDFYrRH7T3je1cRoEW6VbaMQhOODsBie56FAgEgupZbzZJhozlKv5/qBf1/biV6J5eeo9ONT+2yObUAQ=="/>
         </item>
     </channel>
