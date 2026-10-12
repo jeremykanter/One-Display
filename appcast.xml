@@ -1,6 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <title>One Display</title>
+        <item>
+            <title>1.0.3</title>
+            <pubDate>Mon, 12 Oct 2026 18:48:46 -0400</pubDate>
+            <sparkle:version>3</sparkle:version>
+            <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:releaseNotesLink>https://raw.githubusercontent.com/jeremykanter/One-Display/main/One-Display-1.0.3.md</sparkle:releaseNotesLink>
+            <enclosure url="https://github.com/jeremykanter/One-Display/releases/download/v1.0.3/One-Display-1.0.3.zip" length="3028483" type="application/octet-stream" sparkle:edSignature="TJwvhoLCe9mVT5vVE5QDV3lAGFox2jsCfNGa8aTehwTxGvvHtbd2BBmaGLLO9tTMib6zFXBCzXXSQ7HS4hVWBw=="/>
+        </item>
     </channel>
 </rss>
