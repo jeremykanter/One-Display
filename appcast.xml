@@ -9,7 +9,7 @@
             <sparkle:shortVersionString>1.0.3</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
             <sparkle:releaseNotesLink>https://raw.githubusercontent.com/jeremykanter/One-Display/main/One-Display-1.0.3.md</sparkle:releaseNotesLink>
-            <enclosure url="https://github.com/jeremykanter/One-Display/releases/download/1.0.3/One-Display-1.0.3.zip" length="3028483" type="application/octet-stream" sparkle:edSignature="TJwvhoLCe9mVT5vVE5QDV3lAGFox2jsCfNGa8aTehwTxGvvHtbd2BBmaGLLO9tTMib6zFXBCzXXSQ7HS4hVWBw=="/>
+            <enclosure url="https://github.com/jeremykanter/One-Display/releases/download/1.0.3/One-Display-1.0.3.zip" length="3028483" type="application/octet-stream" sparkle:edSignature="PUg+w7qDFYrRH7T3je1cRoEW6VbaMQhOODsBie56FAgEgupZbzZJhozlKv5/qBf1/biV6J5eeo9ONT+2yObUAQ=="/>
         </item>
     </channel>
 </rss>
