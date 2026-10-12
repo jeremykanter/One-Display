@@ -3,6 +3,15 @@
     <channel>
         <title>One Display</title>
         <item>
+            <title>1.1</title>
+            <pubDate>Mon, 12 Oct 2026 19:44:17 -0400</pubDate>
+            <sparkle:version>4</sparkle:version>
+            <sparkle:shortVersionString>1.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <description sparkle:format="plain-text">Adds support for restoring window positions for each display arrangement, automatic updates via Sparkle, bug fixes, and a new icon.</description>
+            <enclosure url="https://github.com/jeremykanter/One-Display/releases/download/1.1/One-Display-1.1.zip" length="3028431" type="application/octet-stream" sparkle:edSignature="I9OYoiGO3Bp1Fg4ANbr0ag27ouHErOhqx/uXpctEQNkf8Qkt3tvluTjzmL6IMUql3UtSlYPjqpp66j7F+ExRDw=="/>
+        </item>
+        <item>
             <title>1.0.3</title>
             <pubDate>Mon, 12 Oct 2026 18:48:46 -0400</pubDate>
             <sparkle:version>3</sparkle:version>
