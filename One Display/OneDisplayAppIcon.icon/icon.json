@@ -1,54 +1,89 @@
 {
-  "fill-specializations" : [
-    {
-      "value" : {
-        "solid" : "srgb:1.00000,1.00000,1.00000,1.00000"
-      }
-    },
-    {
-      "appearance" : "dark",
-      "value" : "automatic"
-    }
-  ],
+  "fill" : {
+    "linear-gradient" : [
+      "display-p3:0.65000,0.65000,0.65000,1.00000",
+      "srgb:0.50000,0.50000,0.50000,1.00000"
+    ]
+  },
   "groups" : [
     {
       "layers" : [
         {
           "fill-specializations" : [
             {
+              "appearance" : "tinted",
+              "value" : "system-light"
+            }
+          ],
+          "glass" : true,
+          "image-name" : "1 Arrow.svg",
+          "name" : "1 Arrow"
+        },
+        {
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : "automatic"
+            },
+            {
+              "appearance" : "tinted",
+              "value" : "automatic"
+            }
+          ],
+          "glass" : false,
+          "image-name" : "2 Screens.svg",
+          "name" : "2 Screens"
+        },
+        {
+          "image-name" : "4 Laptop Base.svg",
+          "name" : "3 Laptop Base"
+        },
+        {
+          "fill-specializations" : [
+            {
               "appearance" : "dark",
               "value" : {
-                "solid" : "srgb:1.00000,1.00000,1.00000,1.00000"
+                "linear-gradient" : [
+                  "display-p3:0.16000,0.16000,0.16000,1.00000",
+                  "srgb:0.24000,0.24000,0.24000,1.00000"
+                ]
               }
-            },
+            }
+          ],
+          "image-name" : "3 Laptop Top.svg",
+          "name" : "4 Laptop Top"
+        },
+        {
+          "fill-specializations" : [
             {
-              "appearance" : "tinted",
+              "appearance" : "dark",
               "value" : {
-                "solid" : "srgb:1.00000,1.00000,1.00000,1.00000"
+                "linear-gradient" : [
+                  "display-p3:0.16000,0.16000,0.16000,1.00000",
+                  "srgb:0.24000,0.24000,0.24000,1.00000"
+                ]
               }
             }
           ],
-          "glass-specializations" : [
-            {
-              "value" : false
-            },
-            {
-              "appearance" : "tinted",
-              "value" : true
-            }
-          ],
-          "image-name" : "One Display Export 2.svg",
-          "name" : "One Display Export"
+          "image-name" : "5 Display Back.svg",
+          "name" : "5 Display Back"
+        },
+        {
+          "image-name" : "6 Display Base.svg",
+          "name" : "6 Display Base"
+        },
+        {
+          "image-name" : "7 Display Neck.svg",
+          "name" : "7 Display Neck"
         }
       ],
       "shadow" : {
         "kind" : "neutral",
         "opacity" : 0.5
       },
-      "specular" : true,
       "translucency" : {
         "enabled" : true,
-        "value" : 0.5
+        "value" : 0.3
       }
     }
   ],

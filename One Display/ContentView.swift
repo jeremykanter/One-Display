@@ -9,12 +9,13 @@ import KeyboardShortcuts
 struct ContentView: View {
     @StateObject private var controller = DisplayController.shared
     @StateObject private var loginItem = LoginItemManager()
+    @ObservedObject private var updater = UpdaterModel.shared
     @AppStorage("toggleShortcutEnabled") private var shortcutEnabled = true
     @AppStorage("rememberWindowPositions") private var rememberWindowPositions = false
     @ObservedObject private var windowLayout = DisplayController.shared.windowLayout
 
     var body: some View {
-        VStack(alignment: .center, spacing: 32) {
+        HStack(alignment: .center, spacing: 32) {
             VStack(alignment: .center, spacing: 16) {
                 HStack(spacing: 8) {
                     Circle()
@@ -36,13 +37,18 @@ struct ContentView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .frame(width: 200)
             Divider()
-            VStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 16) {
                 Toggle("Start at login", isOn: Binding(
                     get: { loginItem.isEnabled },
                     set: { loginItem.setEnabled($0) }
                 ))
-                VStack(spacing: 16) {
+                Toggle("Automatically check for updates", isOn: Binding(
+                    get: { updater.automaticallyChecksForUpdates },
+                    set: { updater.setAutomaticallyChecksForUpdates($0) }
+                ))
+                VStack(alignment: .leading, spacing: 16) {
                     Toggle("Toggle built-in display using keyboard shortcut",
                            isOn: $shortcutEnabled)
                     .onChange(of: shortcutEnabled) {
@@ -63,7 +69,7 @@ struct ContentView: View {
     /// Opt-in window-position memory. Off by default: it needs Accessibility
     /// access and moves other apps' windows, so it must never enable itself.
     private var windowPositions: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 16) {
             Toggle("Remember window positions for each display arrangement",
                    isOn: $rememberWindowPositions)
             .onChange(of: rememberWindowPositions) {
@@ -72,33 +78,23 @@ struct ContentView: View {
 
             if rememberWindowPositions {
                 if !windowLayout.axTrusted {
-                    HStack(alignment: .top, spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("One Display needs Accessibility access to move windows.")
-                            Button("Grant Access…") {
-                                windowLayout.requestAccessibilityPermission()
-                            }
-                            .controlSize(.small)
+                    VStack(alignment: .leading, spacing: 12) {
+                        if #available(macOS 27, *) {
+                            Text("\(Image(systemName: "exclamationmark.triangle")) One Display needs Device Control and Data Access permissions to move windows")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("\(Image(systemName: "exclamationmark.triangle")) One Display needs Accessibility permisisons to move windows")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+
                         }
+                        Button("Grant Access…") {
+                            windowLayout.requestAccessibilityPermission()
+                        }
+                        .controlSize(.small)
                     }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                } else if windowLayout.stageManagerActive {
-                    Text("Paused while Stage Manager is on — it places windows itself.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    HStack(alignment: .firstTextBaseline) {
-                        Text(windowLayout.lastRestoreSummary
-                             ?? "Learns each arrangement the first time you use it.")
-                        Spacer(minLength: 8)
-                        Button("Restore Now") { windowLayout.restoreNow() }
-                            .controlSize(.small)
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .padding(.top, 8)
                 }
             }
         }

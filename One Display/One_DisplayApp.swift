@@ -16,12 +16,15 @@ struct One_DisplayApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .frame(minWidth: 400, idealWidth: 400, maxWidth: .infinity, minHeight: 400, idealHeight: 440, maxHeight: .infinity)
+                .frame(minWidth: 600, idealWidth: 600, maxWidth: .infinity, minHeight: 400, idealHeight: 400, maxHeight: .infinity)
         }
         .windowStyle(.hiddenTitleBar)
-        .defaultSize(width: 400, height: 440)
+        .defaultSize(width: 600, height: 400)
         .windowResizability(.contentMinSize)
         .commands {
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesButton()
+            }
             CommandGroup(after: .help) {
                 Toggle("Save Activity Logs", isOn: $saveActivityLogs)
             }
@@ -62,6 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // target hosts this app, and UI tests launch it, so acting here would
         // disable the developer's screen during a test run.
         guard !Self.isRunningUnderTests else { return }
+        UpdaterModel.shared.start()
         DisplayController.shared.start()
     }
 

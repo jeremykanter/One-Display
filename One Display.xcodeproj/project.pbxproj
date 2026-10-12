@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AAAA0001AAAA0001AAAA0001 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = AAAA0002AAAA0002AAAA0002 /* KeyboardShortcuts */; };
+		BBBB0001BBBB0001BBBB0001 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = BBBB0002BBBB0002BBBB0002 /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AAAA0001AAAA0001AAAA0001 /* KeyboardShortcuts in Frameworks */,
+				BBBB0001BBBB0001BBBB0001 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -118,6 +120,7 @@
 			name = "One Display";
 			packageProductDependencies = (
 				AAAA0002AAAA0002AAAA0002 /* KeyboardShortcuts */,
+				BBBB0002BBBB0002BBBB0002 /* Sparkle */,
 			);
 			productName = "One Display";
 			productReference = BD54AF312FE5DF4200DB65C5 /* One Display.app */;
@@ -203,6 +206,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				AAAA0003AAAA0003AAAA0003 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+				BBBB0003BBBB0003BBBB0003 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BD54AF322FE5DF4200DB65C5 /* Products */;
@@ -417,6 +421,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "One Display";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -425,7 +430,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-Display";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -454,6 +459,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "One Display";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -462,7 +468,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jeremykanter.One-Display";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -610,6 +616,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		BBBB0003BBBB0003BBBB0003 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -617,6 +631,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AAAA0003AAAA0003AAAA0003 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
 			productName = KeyboardShortcuts;
+		};
+		BBBB0002BBBB0002BBBB0002 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BBBB0003BBBB0003BBBB0003 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

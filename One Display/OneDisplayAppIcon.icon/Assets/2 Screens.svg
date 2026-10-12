@@ -1,0 +1,7 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<use xlink:href="#stroke0_66_17" fill="#00C0E8"/>
+<use xlink:href="#stroke0_66_17" fill="white" fill-opacity="0.2" style="mix-blend-mode:plus-lighter"/>
+<defs>
+<path id="stroke0_66_17" d="M637 328C641.418 328 645 331.582 645 336V538H831C835.418 538 839 541.582 839 546V704H567V616H173C168.582 616 165 612.418 165 608V336C165 331.582 168.582 328 173 328H637Z"/>
+</defs>
+</svg>
