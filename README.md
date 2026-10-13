@@ -11,4 +11,4 @@ It has a few other tricks to help you manage your display setup:
 * You can turn on and off the internal display with a keyboard shortcut, useful if you do occasionally need the extra space.
 * It can remember where your windows were positioned on each display and restore those positions when you attach or detach your external display. (macOS is somehow still really bad at this, after all these years.)
 
-One Display is free and open source. If you find it useful, encounter bugs, or have ideas for how I can make it better, I’d love to hear from you!
+One Display is free and open source. If you find it useful, encounter bugs, or have thoughts about how I can make it better, I’d love to hear from you!
